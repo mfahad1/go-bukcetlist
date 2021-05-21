@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/mfahad1/go-bukcetlist/handlers"
 )
 
@@ -15,12 +16,20 @@ func main() {
 
 	productHandler := handlers.NewProduct(l)
 
-	serverHandler := http.NewServeMux()
-	serverHandler.Handle("/", productHandler)
+	muxRouter := mux.NewRouter()
+
+	getRouter := muxRouter.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/product", productHandler.GetProducts)
+
+	postRouter := muxRouter.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/product", productHandler.AddProduct)
+
+	putRouter := muxRouter.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/product/{id:[0-9]+}", productHandler.UpdateProduct)
 
 	server := &http.Server{
 		Addr:	":9090",
-		Handler: serverHandler,
+		Handler: muxRouter,
 		IdleTimeout: 120 * time.Second,
 		ReadTimeout: 1 * time.Second,
 		WriteTimeout: 1 * time.Second,

@@ -68,10 +68,11 @@ func UpdateProduct (p *Product, id int) {
 	for count := range productList {
 		if productList[count].ID == id {
 			productList[count] = p
+			productList[count].ID = id
 		}
 	}
 }
 
 func getNextID () int {
-	return len(productList)
+	return len(productList) + 1
 }
